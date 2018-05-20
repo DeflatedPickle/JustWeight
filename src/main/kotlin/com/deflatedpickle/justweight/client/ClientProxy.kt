@@ -9,5 +9,6 @@ import net.minecraftforge.common.MinecraftForge
 
 class ClientProxy : CommonProxy() {
     override fun init(event: FMLInitializationEvent) {
+        MinecraftForge.EVENT_BUS.register(ForgeEventHandler())
     }
 }
