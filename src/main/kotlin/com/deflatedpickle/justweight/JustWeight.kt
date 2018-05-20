@@ -15,6 +15,7 @@ object JustWeight {
 
     val log: Logger = LogManager.getLogger(Reference.MOD_ID)
 
+    val itemMap: HashMap<String, Float?> = HashMap()
 
     @EventHandler
     fun init(event: FMLInitializationEvent) {
