@@ -13,8 +13,8 @@ class ForgeEventHandler {
         val colour = TextFormatting.getValueByName("GRAY")
 
         toolTip += colour.toString()
-
         toolTip += value
+        toolTip += "g"
 
         event.toolTip.add(toolTip)
     }
