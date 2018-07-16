@@ -10,6 +10,9 @@ object Reference {
     const val CLIENT_PROXY_CLASS = "com.deflatedpickle.justweight.client.ClientProxy"
     const val SERVER_PROXY_CLASS = "com.deflatedpickle.justweight.server.ClientProxy"
 
+    const val CONFIG_GENERAL = "justweight"
+    const val CONFIG_ITEMS = "justweight-items"
+
     const val DEPENDENCIES = "required-after:forgelin"
     const val ADAPTER = "net.shadowfacts.forgelin.KotlinAdapter"
 }

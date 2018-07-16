@@ -40,7 +40,7 @@ object ItemUtil {
     }
 
     private fun determineItemWeight(stack: ItemStack): Float {
-        var weight = 1f
+        var weight = 0f
 
         if (!isBaseItem(stack.item)) {
             for (item in resultingItems(stack.item)) {
