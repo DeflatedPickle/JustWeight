@@ -70,7 +70,22 @@ object ItemUtil {
 
     fun isBaseItem(item: Item): Boolean {
         // TODO: Check if the only recipe is circular, if so return true
-        return CraftingManager.getRecipe(item.registryName!!)?.ingredients == null
+        return CraftingManager.getRecipe(item.registryName!!)?.ingredients == null || isCircular(item)
+    }
+
+    fun isCircular(item: Item): Boolean {
+        CraftingManager.getRecipe(item.registryName!!)?.ingredients?.forEach { it ->
+            with(it.matchingStacks.getOrNull(0)?.item?.registryName) {
+                if (this != null) {
+                    CraftingManager.getRecipe(this)?.ingredients?.forEach { sit ->
+                        if (sit.matchingStacks.getOrNull(0)?.item == item) {
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+        return false
     }
 
     fun getIngredients(item: Item): List<Item> {
