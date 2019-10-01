@@ -26,24 +26,24 @@ object ItemUtil {
 
                 for (stack in itemList) {
                     if (!map.containsKey(stack.unlocalizedName)) {
-                        map[stack.unlocalizedName] = determineItemWeight(stack)
+                        map[stack.unlocalizedName] = determineItemWeight(stack.item)
                     }
                 }
-            } else {
-                val stack = ItemStack(item)
-
-                if (!map.containsKey(stack.unlocalizedName)) {
-                    map[stack.unlocalizedName] = determineItemWeight(stack)
+            }
+            else {
+                if (!map.containsKey(item.unlocalizedName)) {
+                    map[item.unlocalizedName] = determineItemWeight(item)
                 }
             }
         }
     }
 
-    private fun determineItemWeight(stack: ItemStack): Float {
-        var weight = 0f
+    fun determineItemWeight(item: Item): Float {
+        var weight = 1f
 
-        if (!isBaseItem(stack.item)) {
-            for (item in resultingItems(stack.item)) {
+        if (!isBaseItem(item)) {
+            for (ingredient in getIngredients(item)) {
+                // TODO: Add the weight of the ingredients
                 weight += 1
             }
         }
@@ -51,40 +51,37 @@ object ItemUtil {
         return weight
     }
 
-    fun findMatch(stack: ItemStack): Float? {
-        val value: Float?
-
-        val match = stack.unlocalizedName
-
-        if (JustWeight.itemMap.containsKey(match)) {
-            value = JustWeight.itemMap[match]
-        } else {
-            value = 0f
+    fun findMatch(item: Item): Float {
+        val value = if (JustWeight.itemMap.containsKey(item.unlocalizedName)) {
+            JustWeight.itemMap[item.unlocalizedName]!!
+        }
+        else {
+            -1f
         }
 
         return value
     }
 
-    fun updateValue(stack: ItemStack, value: Float) {
-        val match = stack.unlocalizedName
-        if (JustWeight.itemMap.containsKey(match)) {
-            JustWeight.itemMap.replace(match, value)
+    fun updateValue(item: Item, value: Float) {
+        if (JustWeight.itemMap.containsKey(item.unlocalizedName)) {
+            JustWeight.itemMap.replace(item.unlocalizedName, value)
         }
     }
 
     fun isBaseItem(item: Item): Boolean {
+        // TODO: Check if the only recipe is circular, if so return true
         return CraftingManager.getRecipe(item.registryName!!)?.ingredients == null
     }
 
-    fun resultingItems(stack: Item): List<ItemStack> {
-        val list = mutableListOf<ItemStack>()
+    fun getIngredients(item: Item): List<Item> {
+        val list = mutableListOf<Item>()
 
         for (recipe in ForgeRegistries.RECIPES) {
-            if (recipe.recipeOutput.item == stack) {
+            if (recipe.recipeOutput.item == item) {
                 for (ingredient in recipe.ingredients) {
-                    for (item in ingredient.matchingStacks) {
-                        if (!item.hasSubtypes) {
-                            list.add(item)
+                    with(ingredient.matchingStacks.elementAtOrNull(0)) {
+                        if (this != null) {
+                            list.add(this.item)
                         }
                     }
                 }
