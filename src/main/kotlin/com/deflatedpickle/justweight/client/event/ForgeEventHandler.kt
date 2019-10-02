@@ -12,8 +12,8 @@ import kotlin.math.max
 class ForgeEventHandler {
     @SubscribeEvent
     fun onItemTooltipEvent(event: ItemTooltipEvent) {
-        val value = max(ItemUtil.findMatch(event.itemStack) * event.itemStack.count, -1f)
-        val colour = TextFormatting.getValueByName(if (value == -1f) "RED" else "GRAY")
+        val value = max(ItemUtil.findMatch(event.itemStack) * event.itemStack.count, -1)
+        val colour = TextFormatting.getValueByName(if (value == -1) "RED" else "GRAY")
 
         with(event.toolTip) {
             add("${colour.toString()}${value}g")

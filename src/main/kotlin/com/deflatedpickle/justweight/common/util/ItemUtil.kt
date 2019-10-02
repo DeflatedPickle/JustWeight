@@ -18,7 +18,7 @@ object ItemUtil {
         }
     }
 
-    fun itemLocator(map: HashMap<Pair<ResourceLocation, Int>, Float>) {
+    fun itemLocator(map: HashMap<Pair<ResourceLocation, Int>, Int>) {
         for (item in ForgeRegistries.ITEMS) {
             if (item.hasSubtypes) {
                 val itemList = NonNullList.create<ItemStack>()
@@ -40,9 +40,9 @@ object ItemUtil {
         }
     }
 
-    fun determineItemWeight(stack: ItemStack): Float {
+    fun determineItemWeight(stack: ItemStack): Int {
         JustWeight.log.info("Working out the weight for ${stack.translationKey} with the meta ${stack.metadata}")
-        var weight = 1f
+        var weight = 1
 
         if (!isBaseItem(stack)) {
             for (ingredient in getIngredients(stack)) {
@@ -63,19 +63,19 @@ object ItemUtil {
         return weight
     }
 
-    fun findMatch(stack: ItemStack): Float {
+    fun findMatch(stack: ItemStack): Int {
         val match = Pair(stack.item.registryName!!, stack.metadata)
         val value = if (JustWeight.itemMap.containsKey(match)) {
             JustWeight.itemMap[match]!!
         }
         else {
-            -1f
+            -1
         }
 
         return value
     }
 
-    fun updateValue(stack: ItemStack, value: Float) {
+    fun updateValue(stack: ItemStack, value: Int) {
         val match = Pair(stack.item.registryName!!, stack.metadata)
         if (JustWeight.itemMap.containsKey(match)) {
             JustWeight.itemMap.replace(match, value)

@@ -3,31 +3,40 @@ package com.deflatedpickle.justweight.common.capability
 import com.deflatedpickle.justweight.Reference
 import com.deflatedpickle.justweight.api.ICarryWeight
 import net.minecraft.nbt.NBTBase
-import net.minecraft.nbt.NBTTagFloat
+import net.minecraft.nbt.NBTTagIntArray
 import net.minecraft.util.EnumFacing
-import net.minecraftforge.common.capabilities.*
-import java.util.concurrent.Callable
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.capabilities.CapabilityInject
+import net.minecraftforge.common.capabilities.CapabilityManager
+import net.minecraftforge.common.capabilities.ICapabilitySerializable
+import java.util.concurrent.Callable
+import kotlin.math.max
+import kotlin.math.min
 
 object CarryWeight {
     val NAME = ResourceLocation(Reference.MOD_ID, "carryWeight")
 
     class Implementation : ICarryWeight {
-        private var carryWeight = 0f
+        private var max = 0
+        private var current = 0
 
-        override fun setCarryWeight(weight: Float) {
-            this.carryWeight = weight
-        }
+        override fun setMax(value: Int) { this.max = value }
+        override fun getMax(): Int = this.max
 
-        override fun getCarryWeight(): Float {
-            return this.carryWeight
-        }
+        override fun incCurrent(value: Int) { this.current = min(this.current + value, this.max) }
+        override fun decCurrent(value: Int) { this.current = max(this.current - value, 0) }
+        override fun setCurrent(value: Int) { this.current = min(value, this.max) }
+        override fun getCurrent(): Int = this.current
     }
 
     class Storage : Capability.IStorage<ICarryWeight> {
         override fun readNBT(capability: Capability<ICarryWeight>?, instance: ICarryWeight?, side: EnumFacing?, nbt: NBTBase?) {
             if (instance is Implementation) {
-                instance.carryWeight = (nbt as NBTTagFloat).float
+                with(nbt as NBTTagIntArray) {
+                    instance.max = this.intArray[0]
+                    instance.current = this.intArray[1]
+                }
             }
             else {
                 throw IllegalArgumentException("Can not deserialize to an instance that isn't the default implementation")
@@ -36,7 +45,7 @@ object CarryWeight {
 
         override fun writeNBT(capability: Capability<ICarryWeight>?, instance: ICarryWeight?, side: EnumFacing?): NBTBase? {
             if (instance != null) {
-                return NBTTagFloat(instance.carryWeight)
+                return NBTTagIntArray(intArrayOf(instance.max, instance.current))
             }
             return null
         }

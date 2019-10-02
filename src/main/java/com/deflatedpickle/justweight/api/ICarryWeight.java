@@ -1,6 +1,11 @@
 package com.deflatedpickle.justweight.api;
 
 public interface ICarryWeight {
-    void setCarryWeight(float carryWeight);
-    float getCarryWeight();
+    void setMax(int value);
+    int getMax();
+
+    void incCurrent(int value);
+    void decCurrent(int value);
+    void setCurrent(int value);
+    int getCurrent();
 }
