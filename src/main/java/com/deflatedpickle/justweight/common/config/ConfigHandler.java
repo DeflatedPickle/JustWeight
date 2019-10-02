@@ -31,7 +31,7 @@ public class ConfigHandler {
     static {
         for (ModContainer mod : Loader.instance().getActiveModList()) {
             for (Item item : ForgeRegistries.ITEMS) {
-                itemMap.put(item.getUnlocalizedName(), ItemUtil.INSTANCE.determineItemWeight(item));
+                // itemMap.put(item.getTranslationKey(), ItemUtil.INSTANCE.determineItemWeight(new ItemStack(item)));
             }
         }
     }

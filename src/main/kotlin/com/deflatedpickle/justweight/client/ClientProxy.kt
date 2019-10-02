@@ -6,13 +6,11 @@ import com.deflatedpickle.justweight.client.event.ForgeEventHandler
 import com.deflatedpickle.justweight.common.util.ItemUtil
 import net.minecraftforge.common.MinecraftForge
 
-
-
 class ClientProxy : CommonProxy() {
     override fun init(event: FMLInitializationEvent) {
         super.init(event)
+        MinecraftForge.EVENT_BUS.register(ForgeEventHandler())
 
         ItemUtil.itemChecker()
-        MinecraftForge.EVENT_BUS.register(ForgeEventHandler())
     }
 }

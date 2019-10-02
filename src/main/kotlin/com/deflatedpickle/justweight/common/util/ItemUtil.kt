@@ -1,59 +1,72 @@
 package com.deflatedpickle.justweight.common.util
 
 import com.deflatedpickle.justweight.JustWeight
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.CraftingManager
 import net.minecraftforge.fml.common.registry.ForgeRegistries
 import net.minecraft.util.NonNullList
+import net.minecraft.util.ResourceLocation
 
 object ItemUtil {
     fun itemChecker() {
         for (item in ForgeRegistries.ITEMS) {
             // println(item.unlocalizedName + ": " + resultingItems(item))
 
-            if (isBaseItem(item)) {
-                JustWeight.log.info("Requires specified weight for: " + item.unlocalizedName)
+            if (isBaseItem(ItemStack(item))) {
+                JustWeight.log.info("Requires specified weight for: " + item.translationKey)
             }
         }
     }
 
-    fun itemLocator(map: HashMap<String, Float>) {
+    fun itemLocator(map: HashMap<Pair<ResourceLocation, Int>, Float>) {
         for (item in ForgeRegistries.ITEMS) {
             if (item.hasSubtypes) {
                 val itemList = NonNullList.create<ItemStack>()
                 item.getSubItems(item.creativeTab, itemList)
 
                 for (stack in itemList) {
-                    if (!map.containsKey(stack.unlocalizedName)) {
-                        map[stack.unlocalizedName] = determineItemWeight(stack.item)
+                    val pair = Pair(stack.item.registryName!!, stack.metadata)
+                    if (!map.containsKey(pair)) {
+                        map[pair] = determineItemWeight(stack)
                     }
                 }
             }
             else {
-                if (!map.containsKey(item.unlocalizedName)) {
-                    map[item.unlocalizedName] = determineItemWeight(item)
+                val pair = Pair(item.registryName!!, 0)
+                if (!map.containsKey(pair)) {
+                    map[pair] = determineItemWeight(ItemStack(item))
                 }
             }
         }
     }
 
-    fun determineItemWeight(item: Item): Float {
+    fun determineItemWeight(stack: ItemStack): Float {
+        JustWeight.log.info("Working out the weight for ${stack.translationKey} with the meta ${stack.metadata}")
         var weight = 1f
 
-        if (!isBaseItem(item)) {
-            for (ingredient in getIngredients(item)) {
+        if (!isBaseItem(stack)) {
+            for (ingredient in getIngredients(stack)) {
+                JustWeight.log.info("Adding the ingredient ${ingredient.translationKey} with the meta ${ingredient.metadata}")
                 // TODO: Add the weight of the ingredients
-                weight += 1
+                val pair = Pair(stack.item.registryName!!, stack.metadata)
+                weight += if (JustWeight.itemMap.containsKey(pair)) {
+                    JustWeight.itemMap[pair]!!
+                }
+                else {
+                    determineItemWeight(ingredient).apply {
+                        JustWeight.itemMap[pair] = this
+                    }
+                }
             }
         }
 
         return weight
     }
 
-    fun findMatch(item: Item): Float {
-        val value = if (JustWeight.itemMap.containsKey(item.unlocalizedName)) {
-            JustWeight.itemMap[item.unlocalizedName]!!
+    fun findMatch(stack: ItemStack): Float {
+        val match = Pair(stack.item.registryName!!, stack.metadata)
+        val value = if (JustWeight.itemMap.containsKey(match)) {
+            JustWeight.itemMap[match]!!
         }
         else {
             -1f
@@ -62,41 +75,59 @@ object ItemUtil {
         return value
     }
 
-    fun updateValue(item: Item, value: Float) {
-        if (JustWeight.itemMap.containsKey(item.unlocalizedName)) {
-            JustWeight.itemMap.replace(item.unlocalizedName, value)
+    fun updateValue(stack: ItemStack, value: Float) {
+        val match = Pair(stack.item.registryName!!, stack.metadata)
+        if (JustWeight.itemMap.containsKey(match)) {
+            JustWeight.itemMap.replace(match, value)
         }
     }
 
-    fun isBaseItem(item: Item): Boolean {
-        // TODO: Check if the only recipe is circular, if so return true
-        return CraftingManager.getRecipe(item.registryName!!)?.ingredients == null || isCircular(item)
+    fun isBaseItem(stack: ItemStack): Boolean {
+        return CraftingManager.getRecipe(stack.item.registryName!!)?.ingredients == null || isCircular(stack)
     }
 
-    fun isCircular(item: Item): Boolean {
-        CraftingManager.getRecipe(item.registryName!!)?.ingredients?.forEach { it ->
-            with(it.matchingStacks.getOrNull(0)?.item?.registryName) {
-                if (this != null) {
-                    CraftingManager.getRecipe(this)?.ingredients?.forEach { sit ->
-                        if (sit.matchingStacks.getOrNull(0)?.item == item) {
-                            return true
-                        }
-                    }
-                }
-            }
-        }
-        return false
+    fun isCircular(stack: ItemStack): Boolean {
+        // println("stack = ${stack.item.translationKey}, ${stack.metadata}")
+        // CraftingManager.getRecipe(stack.item.registryName!!)?.ingredients?.forEach { stackRecipe ->
+        //     with(stackRecipe.matchingStacks.getOrNull(stack.metadata)?.item?.registryName) {
+        //         println("${stack.item.translationKey} : $this")
+        //         if (this != null) {
+        //             with(CraftingManager.getRecipe(this)) {
+        //                 if (this != null) {
+        //                     ingredients.forEach { compoundRecipe ->
+        //                         compoundRecipe.matchingStacks.forEach {
+        //                             println("${it.item.translationKey}, ${stack.item.translationKey}, ${it.item == stack.item}")
+        //                             val itemList = NonNullList.create<ItemStack>()
+        //                             stack.item.getSubItems(stack.item.creativeTab, itemList)
+        //                             for (i in itemList) {
+        //                                 println("sub item ${i.translationKey} --- ${stack.translationKey} ||| ${i == stack}")
+        //                                 if (i.item == stack.item) {
+        //                                     return true
+        //                                 }
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //                 else {
+        //                     return true
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
+        return true
     }
 
-    fun getIngredients(item: Item): List<Item> {
-        val list = mutableListOf<Item>()
+    fun getIngredients(stack: ItemStack): List<ItemStack> {
+        val list = mutableListOf<ItemStack>()
 
         for (recipe in ForgeRegistries.RECIPES) {
-            if (recipe.recipeOutput.item == item) {
+            if (recipe.recipeOutput.item == stack.item) {
                 for (ingredient in recipe.ingredients) {
                     with(ingredient.matchingStacks.elementAtOrNull(0)) {
                         if (this != null) {
-                            list.add(this.item)
+                            list.add(this)
                         }
                     }
                 }
