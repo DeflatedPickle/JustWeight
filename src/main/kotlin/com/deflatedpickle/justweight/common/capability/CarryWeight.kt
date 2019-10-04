@@ -26,7 +26,7 @@ object CarryWeight {
 
         override fun incCurrent(value: Int) { this.current = min(this.current + value, this.max) }
         override fun decCurrent(value: Int) { this.current = max(this.current - value, 0) }
-        override fun setCurrent(value: Int) { this.current = min(value, this.max) }
+        override fun setCurrent(value: Int) { this.current = max(min(value, this.max), 0) }
         override fun getCurrent(): Int = this.current
     }
 
@@ -59,8 +59,8 @@ object CarryWeight {
 
     class Provider : ICapabilitySerializable<NBTBase> {
         companion object {
-            @CapabilityInject(ICarryWeight::class)
             @JvmStatic
+            @CapabilityInject(ICarryWeight::class)
             var CAPABILITY: Capability<ICarryWeight>? = null
         }
 

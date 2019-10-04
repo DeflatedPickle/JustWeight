@@ -8,7 +8,7 @@ object Reference {
     const val ACCEPTED_VERSIONS = "[1.12.1, 1.12.2]"
 
     const val CLIENT_PROXY_CLASS = "com.deflatedpickle.justweight.client.ClientProxy"
-    const val SERVER_PROXY_CLASS = "com.deflatedpickle.justweight.server.ClientProxy"
+    const val SERVER_PROXY_CLASS = "com.deflatedpickle.justweight.server.ServerProxy"
 
     const val CONFIG_GENERAL = "justweight"
     const val CONFIG_ITEMS = "justweight-items"

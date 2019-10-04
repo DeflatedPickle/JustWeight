@@ -41,6 +41,10 @@ object ItemUtil {
     }
 
     fun determineItemWeight(stack: ItemStack): Int {
+        if (stack.item.registryName.toString() == "minecraft:air") {
+            return 0
+        }
+
         JustWeight.log.info("Working out the weight for ${stack.translationKey} with the meta ${stack.metadata}")
         var weight = 1
 
