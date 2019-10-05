@@ -2,6 +2,7 @@ package com.deflatedpickle.justweight.common
 
 import com.deflatedpickle.justweight.JustWeight
 import com.deflatedpickle.justweight.common.capability.CarryWeight
+import com.deflatedpickle.justweight.common.event.FMLEventHandler
 import com.deflatedpickle.justweight.common.event.ForgeEventHandler
 import com.deflatedpickle.justweight.common.networking.handler.HandlerCarryWeight
 import com.deflatedpickle.justweight.common.networking.message.Message
@@ -21,6 +22,7 @@ open class CommonProxy {
 
     open fun init(event: FMLInitializationEvent) {
         MinecraftForge.EVENT_BUS.register(ForgeEventHandler())
+        MinecraftForge.EVENT_BUS.register(FMLEventHandler())
 
         ItemUtil.itemLocator(JustWeight.itemMap)
     }

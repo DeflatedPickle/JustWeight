@@ -4,11 +4,9 @@ import com.deflatedpickle.justweight.JustWeight
 import com.deflatedpickle.justweight.common.capability.CarryWeight
 import com.deflatedpickle.justweight.common.util.ItemUtil
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.item.crafting.CraftingManager
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.client.event.RenderGameOverlayEvent
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent
 import net.minecraftforge.event.entity.player.ItemTooltipEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import kotlin.math.max
